@@ -1,8 +1,31 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, FlatList } from 'react-native';
+import React, { useState, useEffect, useCallback, Component } from 'react';
+import { View, Image, Text, FlatList, TouchableOpacity} from 'react-native';
 
-import { Post, Header, Avatar, Name, Description, Loading } from './style';
+import {
+    styles,
+    Post,
+    Header,
+    Avatar,
+    Name,
+    Hashtags,
+    More,
+    Description,
+    Loading,
+    NumberLikes,
+    FeedItemFooter,
+    ActionsButtons,
+    Likes
+    } from './style';
+
+import urlApiFeed from '../../config/global';
+
 import LazyImage from '../../components/LazyImage'
+
+import like from '../../assets/ActionsButtons/like.png';
+import comment from '../../assets/ActionsButtons/comment.png';
+import send from '../../assets/ActionsButtons/send.png';
+import more from '../../assets/ActionsButtons/more.png';
+import camera from '../../assets/ActionsButtons/camera.png';
 
 export default function Feed() {
 
@@ -22,7 +45,7 @@ export default function Feed() {
         setLoading(true);
 
         const response = await fetch(
-            `http://192.168.0.24:3000/feed?_expand=author&_limit=${limitRequest}&_page=${pageNumber}`
+            `${urlApiFeed}/feed?_expand=author&_limit=${limitRequest}&_page=${pageNumber}`
         );
     
         const data = await response.json();
@@ -51,6 +74,7 @@ export default function Feed() {
     }, []);
 
   return (
+      <navigationOptions />,
       <View>
           <FlatList // Listagem com scroll
             data={feed}
@@ -60,13 +84,16 @@ export default function Feed() {
             onRefresh={refreshList}
             refreshing={refreshing}
             onViewableItemsChanged={handleViewableChanged}
-            viewabilityConfig={{ viewAreaCoveragePercentThreshold: 20 }}
+            viewabilityConfig={{ viewAreaCoveragePercentThreshold: 10 }}
             ListFooterComponent={loading && <Loading />} //Carrega um item no final da lista
             renderItem={({ item }) => ( // Para cada post, o que ira mostrar na tela     
                 <Post>
                     <Header>
                         <Avatar source={{ uri: item.author.avatar }} />
                         <Name>{item.author.name}</Name>
+                        <TouchableOpacity style={ styles.buttonMore }>
+                            <More source={more} />
+                        </TouchableOpacity>
                     </Header>
 
                     <LazyImage
@@ -75,12 +102,39 @@ export default function Feed() {
                         smallSource={{ uri: item.small }}
                         source={{ uri: item.image }}
                     />
-                    <Description>
-                        <Name>{item.author.name}</Name> {item.description}
-                    </Description>
+                    <FeedItemFooter>
+                        <ActionsButtons>
+                            <TouchableOpacity style={ styles.action }>
+                                <Image source={like}/>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={ styles.action }>
+                                <Image source={comment} />
+                            </TouchableOpacity>
+                            <TouchableOpacity style={ styles.action }>
+                                <Image source={send}/>
+                            </TouchableOpacity>
+                        </ActionsButtons>
+                        <Likes>
+                            <NumberLikes>10 Curtidas</NumberLikes>
+                        </Likes>
+                        <Description>
+                            <Name>{item.author.name}</Name> {item.description}
+                        </Description>
+                        <Hashtags>#top #smatheus</Hashtags>
+                    </FeedItemFooter>
                 </Post>
             )}
           />
       </View>
   );
+
+  
 }
+
+Feed.navigationOptions = ({ navigation }) => ({
+    headerRight: (
+        <TouchableOpacity onPress={ () => navigation.navigate('New') }>
+            <Image style={ { marginRight: 20 } } source={camera} />
+        </TouchableOpacity>
+    ),
+});

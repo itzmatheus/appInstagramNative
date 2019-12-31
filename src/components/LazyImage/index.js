@@ -33,7 +33,7 @@ export default function LazyImage({
     <Small
         source={smallSource}
         ratio={aspectRatio}
-        resizeMode="contain"
+        // resizeMode="contain"
         blurRadius={1}
     >
         {
@@ -42,7 +42,7 @@ export default function LazyImage({
               style={{ opacity }}
               source={source}
               ratio={aspectRatio}
-              resizeMode="contain"
+              // resizeMode="contain"
               onLoadEnd={handleAnimate}
             />
         }
